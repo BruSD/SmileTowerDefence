@@ -1,0 +1,19 @@
+
+static-game-elements.png
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+plate
+  rotate: false
+  xy: 1, 1
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1
+plate_road
+  rotate: false
+  xy: 53, 1
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1

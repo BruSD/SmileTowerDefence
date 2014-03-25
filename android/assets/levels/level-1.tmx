@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="12" height="8" tilewidth="50" tileheight="50">
+ <tileset firstgid="1" name="static-game-elements" tilewidth="52" tileheight="52">
+  <image source="../images/static-game-elements.png" width="128" height="64"/>
+  <tile id="0">
+   <properties>
+    <property name="tileID" value="1"/>
+   </properties>
+  </tile>
+  <tile id="1">
+   <properties>
+    <property name="tileID" value="2"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="plate" width="12" height="8">
+  <data encoding="csv">
+1,1,1,1,1,1,1,1,1,1,2,1,
+1,1,1,1,1,1,1,1,1,1,2,1,
+1,1,1,1,1,1,1,1,1,2,2,1,
+1,1,1,1,1,1,1,1,1,2,1,1,
+1,1,1,1,1,1,1,1,1,2,1,1,
+1,1,1,1,1,1,2,2,2,2,1,1,
+2,2,2,2,2,2,2,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1
+</data>
+ </layer>
+</map>
