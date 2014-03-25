@@ -115,6 +115,7 @@ public class WorldController extends InputAdapter implements Disposable{
 
     private void handleDebugInput (float deltaTime) {
         // Camera Controls (move)
+
         float camMoveSpeed = 5 * deltaTime;
         float camMoveSpeedAccelerationFactor = 5;
         if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) camMoveSpeed *=
