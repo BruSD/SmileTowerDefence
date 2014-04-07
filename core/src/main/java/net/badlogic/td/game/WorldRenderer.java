@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.utils.Disposable;
 import net.badlogic.td.util.Constants;
@@ -21,7 +22,7 @@ public class WorldRenderer implements Disposable {
     private OrthographicCamera cameraGUI;
 
 
-    private static final boolean DEBUG_DRAW_BOX2D_WORLD = false;
+    private static final boolean DEBUG_DRAW_BOX2D_WORLD = true;
     private Box2DDebugRenderer b2debugRenderer;
 
     public WorldRenderer (WorldController worldController) {
@@ -82,17 +83,22 @@ public class WorldRenderer implements Disposable {
     private void renderWorld(SpriteBatch batch) {
         worldController.cameraHelper.applyTo(camera);
         batch.setProjectionMatrix(camera.combined);
+        //worldController.b2world.step( 1/60.0f, 6, 2 );
         batch.begin();
 
         worldController.level.render(batch);
-
         batch.end();
+
+
 
         if (DEBUG_DRAW_BOX2D_WORLD) {
             b2debugRenderer.render(worldController.b2world,
                     camera.combined);
         }
+
+
     }
+
     //endregion
 
     //region GUI
@@ -112,7 +118,25 @@ public class WorldRenderer implements Disposable {
 
         // draw game over text
         renderGuiGameOverMessage(batch);
+
+        renderGuiTowerSelectTable(batch);
         batch.end();
+    }
+    private void renderGuiTowerSelectTable (SpriteBatch batch) {
+        float x = cameraGUI.viewportWidth ;
+        float y = cameraGUI.viewportHeight /2;
+        float offsetX = 50;
+        float offsetY = 50;
+        long shakeAlpha = System.currentTimeMillis() % 360;
+        float shakeDist = 1.5f;
+        offsetX += MathUtils.sinDeg(shakeAlpha * 2.2f) * shakeDist;
+        offsetY += MathUtils.sinDeg(shakeAlpha * 2.9f) * shakeDist;
+        batch.draw(Assets.instance.plate.plate,
+                x, y,
+                offsetX, offsetY,
+                100, 100,
+                0.35f, -0.35f,
+                0);
     }
     private void renderGuiScore (SpriteBatch batch) {
         float x = -15;

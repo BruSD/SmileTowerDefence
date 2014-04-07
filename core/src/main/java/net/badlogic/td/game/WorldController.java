@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputAdapter;
 
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -13,12 +14,16 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.Pool;
 import net.badlogic.td.game.objects.Plate;
+import net.badlogic.td.game.objects.crip.AbstractCrip;
+import net.badlogic.td.game.objects.crip.SimpleCrip;
 import net.badlogic.td.screens.DirectedGame;
 import net.badlogic.td.screens.MenuScreen;
 import net.badlogic.td.screens.transitions.ScreenTransition;
 import net.badlogic.td.screens.transitions.ScreenTransitionSlide;
 import net.badlogic.td.util.CameraHelper;
+import net.badlogic.td.util.TDGestureListener;
 
 
 /**
@@ -26,8 +31,10 @@ import net.badlogic.td.util.CameraHelper;
  */
 public class WorldController extends InputAdapter implements Disposable{
 
-    public CameraHelper cameraHelper;
+
     private static final String TAG = WorldController.class.getName();
+    public CameraHelper cameraHelper;
+    public boolean isPlateOpenForPutTower = true;
     private DirectedGame game;
 
     public Level level;
@@ -46,6 +53,10 @@ public class WorldController extends InputAdapter implements Disposable{
 
     /** ground body to connect the mouse joint to **/
     protected Body groundBody;
+
+
+
+    private InputTDGestureListener tdGestureListener;
 
     public WorldController (DirectedGame game) {
         this.game = game;
@@ -69,6 +80,10 @@ public class WorldController extends InputAdapter implements Disposable{
     }
     public void update (float deltaTime) {
         handleDebugInput(deltaTime);
+        handleGesteInput();
+
+        b2world.step(deltaTime, 6, 2);
+
         level.update(deltaTime);
 
     }
@@ -111,12 +126,17 @@ public class WorldController extends InputAdapter implements Disposable{
         return false;
     }
 
+    private void handleGesteInput () {
+        tdGestureListener = new InputTDGestureListener();
 
+        Gdx.input.setInputProcessor(new GestureDetector(tdGestureListener));
+
+    }
 
     private void handleDebugInput (float deltaTime) {
         // Camera Controls (move)
 
-        float camMoveSpeed = 5 * deltaTime;
+        float camMoveSpeed = 1 ;
         float camMoveSpeedAccelerationFactor = 5;
         if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) camMoveSpeed *=
                 camMoveSpeedAccelerationFactor;
@@ -143,7 +163,14 @@ public class WorldController extends InputAdapter implements Disposable{
         if (Gdx.input.isKeyPressed(Input.Keys.SLASH)) cameraHelper.setZoom(1);
 
 
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE )||Gdx.input.isKeyPressed(Input.Keys.BACK )){
+            backToMenu();
+        }
+
+
     }
+
+
 
     //endregion
 
@@ -157,12 +184,18 @@ public class WorldController extends InputAdapter implements Disposable{
     }
 
     private void initPhysics () {
+        initWirld();
+
+
+    }
+    public void initWirld(){
         if (b2world != null) b2world.dispose();
-        b2world = new World(new Vector2(0, -9.81f), true);
+        b2world = new World(new Vector2(0, 0), true);
+
         BodyDef bodyDef;
         // we also need an invisible zero size ground body
         // to which we can connect the mouse joint
-         bodyDef = new BodyDef();
+        bodyDef = new BodyDef();
         groundBody = b2world.createBody(bodyDef);
         // Plate
         Vector2 origin = new Vector2();
@@ -172,17 +205,21 @@ public class WorldController extends InputAdapter implements Disposable{
             bodyDef.position.set(plate.position);
             Body body = b2world.createBody(bodyDef);
             plate.body = body;
+
             PolygonShape polygonShape = new PolygonShape();
             origin.x = plate.bounds.width / 2.0f;
             origin.y = plate.bounds.height / 2.0f;
             polygonShape.setAsBox(plate.bounds.width / 2.0f,
                     plate.bounds.height / 2.0f, origin, 0);
+
             FixtureDef fixtureDef = new FixtureDef();
             fixtureDef.shape = polygonShape;
             body.createFixture(fixtureDef);
             polygonShape.dispose();
         }
     }
+
+//region GDetector
     /** we instantiate this vector and the callback here so we don't irritate the GC **/
     Vector3 testPoint = new Vector3();
 
@@ -200,55 +237,66 @@ public class WorldController extends InputAdapter implements Disposable{
     };
 
 
+    private  class InputTDGestureListener extends TDGestureListener{
 
+        @Override
+        public boolean touchDown(float x, float y, int pointer, int button) {
+            if (!isPlateOpenForPutTower) {
+                return false;
+            }else {
+                Camera camera = CameraHelper.getCurentCamera();
+                // translate the mouse coordinates to world coordinates
+                camera.unproject(testPoint.set(x, y, 0));
+                // ask the world which bodies are within the given
+                // bounding box around the mouse pointer
+                hitBody = null;
+                b2world.QueryAABB(callback, testPoint.x - 0.0001f, testPoint.y - 0.0001f, testPoint.x + 0.0001f, testPoint.y + 0.0001f);
 
-    //region GDetector
+    //        if (hitBody == groundBody) hitBody = null;
+    //
+    //        // ignore kinematic bodies, they don't work with the mouse joint
+    //        if (hitBody != null && hitBody.getType() == BodyDef.BodyType.KinematicBody) return false;
 
-    @Override
-    public boolean touchUp (int x, int y, int pointer, int button) {
-        // if a mouse joint exists we simply destroy it
-        if (mouseJoint != null) {
-            b2world.destroyJoint(mouseJoint);
-            mouseJoint = null;
+                // if we hit something we create a new mouse joint
+                // and attach it to the hit body.
+                if (hitBody != null) {
+                    MouseJointDef def = new MouseJointDef();
+                    def.bodyA = groundBody;
+                    def.bodyB = hitBody;
+                    def.collideConnected = true;
+                    def.target.set(testPoint.x, testPoint.y);
+
+                    putTowerToPosition(level.spawnPoint);
+
+                    mouseJoint = (MouseJoint)b2world.createJoint(def);
+                    hitBody.setAwake(true);
+                    scoreVisual = scoreVisual +1;
+
+                }
+            }
+            return false;
         }
-        return false;
-    }
-
-    @Override
-    public boolean touchDown (int x, int y, int pointer, int button) {
-        Camera camera = CameraHelper.getCurentCamera();
-        // translate the mouse coordinates to world coordinates
-        camera.unproject(testPoint.set(x, y, 0));
-        // ask the world which bodies are within the given
-        // bounding box around the mouse pointer
-        hitBody = null;
-        b2world.QueryAABB(callback, testPoint.x - 0.0001f, testPoint.y - 0.0001f, testPoint.x + 0.0001f, testPoint.y + 0.0001f);
-
-//        if (hitBody == groundBody) hitBody = null;
-//
-//        // ignore kinematic bodies, they don't work with the mouse joint
-//        if (hitBody != null && hitBody.getType() == BodyDef.BodyType.KinematicBody) return false;
-
-        // if we hit something we create a new mouse joint
-        // and attach it to the hit body.
-        if (hitBody != null) {
-            MouseJointDef def = new MouseJointDef();
-            def.bodyA = groundBody;
-            def.bodyB = hitBody;
-            def.collideConnected = true;
-            def.target.set(testPoint.x, testPoint.y);
-            def.bodyB.setTransform( hitBody.getPosition() , hitBody.getAngle() +45);
 
 
-            mouseJoint = (MouseJoint)b2world.createJoint(def);
-            hitBody.setAwake(true);
-            scoreVisual = scoreVisual +1;
+
+        @Override
+        public boolean zoom(float initialDistance, float distance) {
+            float camZoomSpeed = 5 ;
+
+            if (initialDistance > distance){
+                //cameraHelper.addZoom(camZoomSpeed);
+            }else if(initialDistance < distance){
+                //cameraHelper.addZoom(-camZoomSpeed);
+            }
+
+            Gdx.app.debug(TAG,"initialDistance:"+ String.valueOf(initialDistance) + "distance:"+String.valueOf(distance));
+            return false;
         }
-        return false;
+
     }
-
-
-
-
     //endregion
+
+    public void putTowerToPosition(Vector2 _towerPosition){
+
+    }
 }

@@ -190,7 +190,7 @@ public class MenuScreen extends AbstractGameScreen{
         ScreenTransition transition = ScreenTransitionSlide.init(0.75f,
                 ScreenTransitionSlide.RIGHT, true, Interpolation.bounceOut);
 
-        game.setScreen(new PlayScreen(game), transition);
+        //game.setScreen(new PlayScreen(game), transition);
     }
 
     private void onPlayClicked() {

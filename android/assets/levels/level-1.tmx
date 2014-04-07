@@ -25,4 +25,48 @@
 1,1,1,1,1,1,1,1,1,1,1,1
 </data>
  </layer>
+ <objectgroup name="road" width="12" height="8">
+  <object name="start" type="1" x="516" y="8" width="24" height="25">
+   <properties>
+    <property name="x" value="10"/>
+    <property name="y" value="7"/>
+   </properties>
+  </object>
+  <object name="point" x="514" y="113" width="25" height="27">
+   <properties>
+    <property name="x" value="10"/>
+    <property name="y" value="5"/>
+   </properties>
+  </object>
+  <object name="point" x="463" y="115" width="27" height="24">
+   <properties>
+    <property name="x" value="9"/>
+    <property name="y" value="5"/>
+   </properties>
+  </object>
+  <object name="point" x="463" y="272" width="28" height="22">
+   <properties>
+    <property name="x" value="9"/>
+    <property name="y" value="2"/>
+   </properties>
+  </object>
+  <object name="point" x="313" y="264" width="25" height="23">
+   <properties>
+    <property name="x" value="6"/>
+    <property name="y" value="2"/>
+   </properties>
+  </object>
+  <object name="point" x="313" y="312" width="28" height="23">
+   <properties>
+    <property name="x" value="6"/>
+    <property name="y" value="1"/>
+   </properties>
+  </object>
+  <object name="end" type="1" x="11" y="313" width="26" height="28">
+   <properties>
+    <property name="x" value="0"/>
+    <property name="y" value="1"/>
+   </properties>
+  </object>
+ </objectgroup>
 </map>

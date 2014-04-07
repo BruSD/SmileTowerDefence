@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.*;
 import com.badlogic.gdx.utils.Disposable;
+import net.badlogic.td.game.objects.crip.ConstantCrip;
 import net.badlogic.td.util.Constants;
 
 /**
@@ -27,6 +28,10 @@ public class Assets  implements Disposable, AssetErrorListener {
     public AssetBackground background;
     public AssetPlate plate;
     public AssetPlateRoad plateRoad;
+
+    //Crips
+    public AssetCrip assetCrip;
+
     // singleton: prevent instantiation from other classes
     private Assets () {}
 
@@ -45,6 +50,7 @@ public class Assets  implements Disposable, AssetErrorListener {
 
         assetManager.setErrorListener(this);
         assetManager.load(Constants.TEXTURE_ATLAS_STATIC_GAME_OBJECTS, TextureAtlas.class);
+        assetManager.load(Constants.TEXTURE_ATLAS_CRIPS, TextureAtlas.class);
 
         assetManager.finishLoading();
 
@@ -54,18 +60,34 @@ public class Assets  implements Disposable, AssetErrorListener {
             Gdx.app.debug(TAG, "asset: " + a);
 
         TextureAtlas atlasStaticGameElements = assetManager.get(Constants.TEXTURE_ATLAS_STATIC_GAME_OBJECTS);
+        TextureAtlas cripsAtlas= assetManager.get(Constants.TEXTURE_ATLAS_CRIPS);
         // enable texture filtering for pixel smoothing
         for (Texture t : atlasStaticGameElements.getTextures())
+            t.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+
+        for (Texture t : cripsAtlas.getTextures())
             t.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         // create game resource objects
         fonts = new AssetFonts();
 
-        background = new AssetBackground(atlasStaticGameElements);
+        //static object
         plate = new AssetPlate(atlasStaticGameElements);
         plateRoad = new AssetPlateRoad(atlasStaticGameElements);
+
+        //crips
+        assetCrip = new AssetCrip(cripsAtlas);
     }
 
+    public class AssetCrip {
 
+        public final AtlasRegion simpleCrip;
+
+        public AssetCrip(TextureAtlas atlas){
+            simpleCrip = atlas.findRegion(ConstantCrip.SIMPLE_CRIP);
+
+        }
+    }
     public class AssetBackground {
 
         public final AtlasRegion background;
@@ -109,6 +131,7 @@ public class Assets  implements Disposable, AssetErrorListener {
             defaultNormal.setScale(1.0f);
             defaultBig.setScale(2.0f);
             // enable linear texture filtering for smooth fonts
+
             defaultSmall.getRegion().getTexture().setFilter(
                     Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             defaultNormal.getRegion().getTexture().setFilter(

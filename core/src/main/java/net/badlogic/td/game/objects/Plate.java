@@ -18,6 +18,7 @@ public class Plate extends AbstractGameObject{
     public Plate () {
         init();
     }
+
     private void init () {
 
         dimension.set(1f, 1f);
@@ -33,6 +34,7 @@ public class Plate extends AbstractGameObject{
 
         TextureRegion reg = null;
         reg = regPlate;
+
         batch.draw(reg.getTexture(),
                 position.x, position.y,
                 origin.x, origin.y,
@@ -42,18 +44,15 @@ public class Plate extends AbstractGameObject{
                 reg.getRegionX(), reg.getRegionY(),
                 reg.getRegionWidth(), reg.getRegionHeight(),
                 false, false);
-
     }
-    public void rotatePlate(){
-        rotation = rotation + 45;
-    }
-
-
-
-
     @Override
     public void update (float deltaTime) {
         super.update(deltaTime);
-
     }
+
+    public void setEmtyStatus(boolean _isEmpty){
+        this.isEmpty = _isEmpty;
+    }
+
+
 }

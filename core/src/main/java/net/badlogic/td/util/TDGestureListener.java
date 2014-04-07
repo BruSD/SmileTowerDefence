@@ -51,5 +51,10 @@ public class TDGestureListener implements GestureListener {
     public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
         return false;
     }
+
+
+    public boolean touchDown (int x, int y, int pointer, int button) {
+        return false;
+    }
 }
 

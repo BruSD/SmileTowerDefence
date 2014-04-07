@@ -24,5 +24,7 @@ public class Constants {
 
     public static final String TEXTURE_ATLAS_STATIC_GAME_OBJECTS = "images/static-game-elements.atlas";
 
+    public static final String TEXTURE_ATLAS_CRIPS = "images/crips.atlas";
+
 
 }

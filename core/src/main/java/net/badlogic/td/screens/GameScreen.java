@@ -19,8 +19,15 @@ public class GameScreen extends AbstractGameScreen {
 
     public GameScreen (DirectedGame game) {
         super(game);
+        //GamePreferences.instance.load();
+        worldController = new WorldController(game);
+        worldRenderer = new WorldRenderer(worldController);
+        Gdx.input.setCatchBackKey(true);
     }
+    @Override
+    public void show () {
 
+    }
 
 
     @Override
@@ -46,13 +53,9 @@ public class GameScreen extends AbstractGameScreen {
     public void resize (int width, int height) {
         worldRenderer.resize(width, height);
     }
-    @Override
-    public void show () {
-        //GamePreferences.instance.load();
-        worldController = new WorldController(game);
-        worldRenderer = new WorldRenderer(worldController);
-        Gdx.input.setCatchBackKey(true);
-    }
+
+
+
     @Override
     public void hide () {
         worldController.dispose();
